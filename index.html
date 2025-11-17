@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>転職したほうがいいか診断ツール</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="frame">
+    <header class="header">
+      <h1>転職したほうがいいか診断ツール</h1>
+      <p>100問を 1〜5 の5段階で回答すると、転職したほうがいい「確率」がわかります。</p>
+    </header>
+
+    <main>
+      <section class="questions">
+        <!-- サンプルとして 3問だけ。あとで100問に増やせます -->
+        <div class="question" data-index="1" data-weight="1.3">
+          <div class="q-text">1. 最近3ヶ月で、仕事が原因と思われる強いストレスを感じることが多い。</div>
+          <div class="q-scale">
+            <label><input type="radio" name="q1" value="1">1</label>
+            <label><input type="radio" name="q1" value="2">2</label>
+            <label><input type="radio" name="q1" value="3">3</label>
+            <label><input type="radio" name="q1" value="4">4</label>
+            <label><input type="radio" name="q1" value="5">5</label>
+          </div>
+        </div>
+
+        <div class="question" data-index="2" data-weight="1.3">
+          <div class="q-text">2. 朝起きたときに「会社に行きたくない」と強く感じる日が多い。</div>
+          <div class="q-scale">
+            <label><input type="radio" name="q2" value="1">1</label>
+            <label><input type="radio" name="q2" value="2">2</label>
+            <label><input type="radio" name="q2" value="3">3</label>
+            <label><input type="radio" name="q2" value="4">4</label>
+            <label><input type="radio" name="q2" value="5">5</label>
+          </div>
+        </div>
+
+        <div class="question" data-index="3" data-weight="0.7">
+          <div class="q-text">3. 自社の商品・サービスにあまり愛着が持てない。</div>
+          <div class="q-scale">
+            <label><input type="radio" name="q3" value="1">1</label>
+            <label><input type="radio" name="q3" value="2">2</label>
+            <label><input type="radio" name="q3" value="3">3</label>
+            <label><input type="radio" name="q3" value="4">4</label>
+            <label><input type="radio" name="q3" value="5">5</label>
+          </div>
+        </div>
+
+        <!-- 本番ではここに4問目〜100問目をコピペで追加していくイメージです -->
+      </section>
+
+      <div class="action">
+        <button id="calcButton">転職したほうがいい確率を診断する</button>
+      </div>
+
+      <section id="result" class="result hidden">
+        <h2>診断結果</h2>
+        <p class="score-text"></p>
+        <p class="comment"></p>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

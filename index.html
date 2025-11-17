@@ -1,68 +1,226 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>転職したほうがいいか診断ツール</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="frame">
-    <header class="header">
-      <h1>転職したほうがいいか診断ツール</h1>
-      <p>100問を 1〜5 の5段階で回答すると、転職したほうがいい「確率」がわかります。</p>
-    </header>
+// =========================
+//  質問データ（100問分）
+// =========================
+const questionData = [
+  // ストレス・健康（1〜15）
+  { category: "ストレス・健康", weight: 1.3, text: "最近3ヶ月で、仕事が原因と思われる強いストレスを感じることが多い。" },
+  { category: "ストレス・健康", weight: 1.3, text: "朝起きたときに「会社に行きたくない」と強く感じる日が多い。" },
+  { category: "ストレス・健康", weight: 1.3, text: "仕事のことを考えて眠れない、夜中に目が覚めることが増えている。" },
+  { category: "ストレス・健康", weight: 1.3, text: "仕事が原因で体調不良（頭痛・胃痛・不眠など）が続いている。" },
+  { category: "ストレス・健康", weight: 1.3, text: "休日も仕事のことを考えてしまい、心から休めていない。" },
+  { category: "ストレス・健康", weight: 1.3, text: "上司・顧客からのプレッシャーが、自分の許容範囲を明らかに超えている。" },
+  { category: "ストレス・健康", weight: 1.3, text: "仕事でミスを極端に恐れ、常に緊張状態になっている。" },
+  { category: "ストレス・健康", weight: 1.3, text: "仕事が原因で、家族や友人との関係に悪影響が出ている。" },
+  { category: "ストレス・健康", weight: 1.3, text: "平日だけでなく、休日も疲労感が抜けない。" },
+  { category: "ストレス・健康", weight: 1.3, text: "「このまま働き続けたらまずいかも」と体の限界を感じることがある。" },
+  { category: "ストレス・健康", weight: 1.3, text: "残業時間が慢性的に多く、健康診断の結果にも悪影響が出ている。" },
+  { category: "ストレス・健康", weight: 1.3, text: "精神的に限界に近いと感じることが増えている。" },
+  { category: "ストレス・健康", weight: 1.3, text: "仕事での失敗を必要以上に責められ、自分を追い詰めてしまう。" },
+  { category: "ストレス・健康", weight: 1.3, text: "自分のキャパシティを超えた業務量を長期間求められている。" },
+  { category: "ストレス・健康", weight: 1.3, text: "会社にいるとき、常に「早く帰りたい」と感じてしまう。" },
 
-    <main>
-      <section class="questions">
-        <!-- サンプルとして 3問だけ。あとで100問に増やせます -->
-        <div class="question" data-index="1" data-weight="1.3">
-          <div class="q-text">1. 最近3ヶ月で、仕事が原因と思われる強いストレスを感じることが多い。</div>
-          <div class="q-scale">
-            <label><input type="radio" name="q1" value="1">1</label>
-            <label><input type="radio" name="q1" value="2">2</label>
-            <label><input type="radio" name="q1" value="3">3</label>
-            <label><input type="radio" name="q1" value="4">4</label>
-            <label><input type="radio" name="q1" value="5">5</label>
-          </div>
-        </div>
+  // 人間関係・ハラスメント（16〜30）
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "上司から人格を否定するような言動を受けたことがある。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "職場で理不尽な叱責や怒号が日常的に行われている。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "セクハラ・パワハラ・モラハラに該当しそうな行為を見聞きする。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "特定の人だけが不公平に仕事を押し付けられていると感じる。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "上司に意見を言いづらく、いつも顔色をうかがっている。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "同僚との関係が悪く、職場に居場所がないと感じる。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "チーム内でいじめ・無視・陰口などがある。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "自分だけ情報を共有されないなど、疎外感を覚える。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "社内政治や派閥争いに巻き込まれてストレスを感じる。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "相談できる上司や同僚がほとんどいない。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "人間関係の不満が、仕事内容の不満よりも大きい。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "理不尽なクレーム対応を一部の人だけが担当させられている。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "会社の価値観や文化が自分と根本的に合わないと感じる。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "「この職場の空気感」が合わないと強く思うことが多い。" },
+  { category: "人間関係・ハラスメント", weight: 1.3, text: "自分の意見やアイデアが、まともに取り合われない。" },
 
-        <div class="question" data-index="2" data-weight="1.3">
-          <div class="q-text">2. 朝起きたときに「会社に行きたくない」と強く感じる日が多い。</div>
-          <div class="q-scale">
-            <label><input type="radio" name="q2" value="1">1</label>
-            <label><input type="radio" name="q2" value="2">2</label>
-            <label><input type="radio" name="q2" value="3">3</label>
-            <label><input type="radio" name="q2" value="4">4</label>
-            <label><input type="radio" name="q2" value="5">5</label>
-          </div>
-        </div>
+  // 会社の将来性・コンプライアンス（31〜45）
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "会社の業績や財務状況に不安を感じている。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "ニュースや口コミで、自社の評判が悪化していると感じる。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "自社のビジネスモデルに将来性がないと感じる。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "会社が法令・コンプライアンスを軽視していると感じる。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "上層部の意思決定が場当たり的で、一貫性がない。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "不正やグレーな取引を見て見ぬふりしている空気がある。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "会社の将来像・戦略が社員にほとんど共有されていない。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "数年後もこの会社が大丈夫か不安になることがある。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "自社の商品・サービスが、競合他社に明確に劣っていると感じる。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "上層部に「この人たちについていきたい」と思える人が少ない。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "社内での改善提案が形だけで、実行されないことが多い。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "市場や顧客の変化に、会社がついていけていないと感じる。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "将来のキャリアを考えたときに、自社にいるメリットを感じにくい。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "新しいチャレンジよりも、現状維持を優先する文化が強い。" },
+  { category: "会社の将来性・コンプライアンス", weight: 1.0, text: "「この会社で定年まで働きたい」とは思えない。" },
 
-        <div class="question" data-index="3" data-weight="0.7">
-          <div class="q-text">3. 自社の商品・サービスにあまり愛着が持てない。</div>
-          <div class="q-scale">
-            <label><input type="radio" name="q3" value="1">1</label>
-            <label><input type="radio" name="q3" value="2">2</label>
-            <label><input type="radio" name="q3" value="3">3</label>
-            <label><input type="radio" name="q3" value="4">4</label>
-            <label><input type="radio" name="q3" value="5">5</label>
-          </div>
-        </div>
+  // 成長・スキル・キャリア（46〜65）
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "いまの仕事で、自分の市場価値があまり上がっていないと感じる。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "この会社・部署では、数年後のキャリアのイメージが持てない。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "単純作業やルーチンワークが多く、スキルが蓄積しづらい。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "新しい経験やチャレンジの機会がほとんど与えられない。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "社内のロールモデル（なりたい先輩・上司）がいない。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "このまま働き続けても、年収レンジが大きく伸びるイメージがない。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "専門性よりも「何でも屋」として扱われている。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "勉強や自己投資をしても、評価や業務に反映されにくい。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "自分の強みを活かせていないと感じることが多い。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "上司からのフィードバックが少なく、成長実感がない。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "転職サイトやエージェントの求人を見ることが習慣化している。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "いまの会社にいることで、むしろキャリアの選択肢が狭まっていると感じる。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "「もっと良い環境なら自分は活躍できるはず」と思うことが多い。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "今の仕事が、将来やりたいことにつながっていない気がする。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "現職で「これだけは身につけた」と言えるものが少ない。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "資格取得やスキルアップの支援制度がほとんどない。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "社外の人と比較したとき、自分の成長ペースが遅いと感じる。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "転職活動を具体的にイメージしたことが何度もある。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "「ここで時間を使うのはもったいないかも」と感じることがある。" },
+  { category: "成長・スキル・キャリア", weight: 1.1, text: "今の仕事を続けた先に、ワクワクする未来が見えない。" },
 
-        <!-- 本番ではここに4問目〜100問目をコピペで追加していくイメージです -->
-      </section>
+  // 興味・やりがい・愛着（66〜85）
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "自社の商品・サービスにあまり愛着が持てない。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "扱っている商材を「人に胸を張っておすすめしづらい」と感じる。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "そもそも、その分野自体に強い興味があるわけではない。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "仕事に対して「楽しい」より「作業」と感じることが多い。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "自分が担当する業務に、やりがいを感じにくい。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "「この仕事を一生続けたい」とはまったく思わない。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "業務内容が、自分の得意・好きな領域とズレていると感じる。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "仕事のモチベーションを保つのに、かなり努力が必要だ。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "「給料のためだけに続けている」と感じることがある。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "自分の仕事が、誰の役に立っているのか実感しづらい。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "仕事終わりに「今日もなんとなく終わった」と感じる。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "今の職種に対して、そもそも強いこだわりがない。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "もっと自分らしさを活かせる仕事がある気がする。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "「これが自分の天職だ」とは全く思わない。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "会社の理念やビジョンに共感していない。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "社内イベントや社風に、あまり乗り気になれない。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "仕事のやりがいよりも、ストレスや不満の方が大きい。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "「この仕事を続けた先に誇れるキャリアが描きづらい」と感じる。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "業務内容が、自分の価値観とズレていると感じる。" },
+  { category: "興味・やりがい・愛着", weight: 0.7, text: "もし収入が同じなら、今の仕事は選ばないと思う。" },
 
-      <div class="action">
-        <button id="calcButton">転職したほうがいい確率を診断する</button>
+  // 報酬・条件・生活（86〜100）
+  { category: "報酬・条件・生活", weight: 1.0, text: "同年代と比べて、自分の年収が低いと感じる。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "残業代やインセンティブなどのルールが不透明に感じる。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "昇給・昇格の基準が曖昧で、納得感がない。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "今の給与では、将来設計（貯金・投資）が立てづらい。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "福利厚生や制度に物足りなさを感じる。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "通勤時間・勤務場所に強い不満がある。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "シフトや勤務時間が不規則で、生活リズムが乱れがちだ。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "有給休暇を取りづらい雰囲気がある。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "ライフイベント（結婚・出産・介護など）と仕事の両立に不安がある。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "会社都合の異動や転勤が多く、生活が振り回されている。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "今の会社にいても、年収アップの天井が見えてしまっている。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "副業や複業が会社の規定上やりづらい。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "家計や貯蓄に対する不安が大きい。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "「せめてこれくらいは欲しい」という年収に届いていない。" },
+  { category: "報酬・条件・生活", weight: 1.0, text: "「自分の労力と報酬が見合っていない」と強く感じる。" },
+];
+
+// =========================
+//  質問の描画
+// =========================
+function renderQuestions() {
+  const container = document.getElementById("question-list");
+  container.innerHTML = "";
+
+  questionData.forEach((q, i) => {
+    const index = i + 1;
+
+    const block = document.createElement("section");
+    block.className = "question";
+    block.dataset.index = index;
+    block.dataset.weight = q.weight;
+
+    block.innerHTML = `
+      <h2 class="question-title">
+        Q${index}. <span class="category">[${q.category}]</span> ${q.text}
+      </h2>
+      <div class="question-options">
+        <label><input type="radio" name="q${index}" value="1"> 1：まったく当てはまらない</label>
+        <label><input type="radio" name="q${index}" value="2"> 2：あまり当てはまらない</label>
+        <label><input type="radio" name="q${index}" value="3"> 3：どちらとも言えない</label>
+        <label><input type="radio" name="q${index}" value="4"> 4：やや当てはまる</label>
+        <label><input type="radio" name="q${index}" value="5"> 5：とても当てはまる</label>
       </div>
+    `;
 
-      <section id="result" class="result hidden">
-        <h2>診断結果</h2>
-        <p class="score-text"></p>
-        <p class="comment"></p>
-      </section>
-    </main>
-  </div>
+    container.appendChild(block);
+  });
+}
 
-  <script src="script.js"></script>
-</body>
-</html>
+// =========================
+//  スコア計算
+// =========================
+function calcScore() {
+  const questions = document.querySelectorAll(".question");
+  let totalWeighted = 0;
+  let totalWeight = 0;
+  let unanswered = 0;
+
+  questions.forEach((q) => {
+    const weight = parseFloat(q.dataset.weight || "1");
+    const index = q.dataset.index;
+    const checked = document.querySelector(`input[name="q${index}"]:checked`);
+
+    if (!checked) {
+      unanswered++;
+      return;
+    }
+
+    const value = parseInt(checked.value, 10); // 1〜5
+    // 1 → 0, 5 → 1 に正規化
+    const normalized = (value - 1) / 4;
+
+    totalWeighted += normalized * weight;
+    totalWeight += weight;
+  });
+
+  if (totalWeight === 0) return { score: 0, unanswered };
+
+  const ratio = totalWeighted / totalWeight; // 0〜1
+  const percent = Math.round(ratio * 100);   // 0〜100%
+
+  return { score: percent, unanswered };
+}
+
+// =========================
+//  コメント生成
+// =========================
+function buildComment(percent) {
+  if (percent >= 80) {
+    return "かなり高い確率で転職を検討してよい状態です。健康面・キャリア面のリスクも踏まえて、具体的な情報収集や相談を始めてください。";
+  } else if (percent >= 60) {
+    return "転職を前提に「選択肢を調べ始める」ゾーンです。現職で改善できるかと、外の選択肢の両方を比べてみましょう。";
+  } else if (percent >= 40) {
+    return "今すぐ辞めるほどではないが、不満やモヤモヤが積み上がりつつある状態です。条件の棚卸しと、将来のキャリア設計を一度整理してみてください。";
+  } else if (percent >= 20) {
+    return "現時点では転職必須というほどではなさそうです。ただし、違和感が続く項目があれば、早めに上司・人事・第三者へ相談を。";
+  } else {
+    return "「転職しない方がいい」とは言い切れませんが、少なくとも今の回答からは大きな危険信号は読み取りにくい状態です。定期的に見直していきましょう。";
+  }
+}
+
+// =========================
+//  イベント設定
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+  renderQuestions();
+
+  const button = document.getElementById("calcButton");
+  const resultBox = document.getElementById("result");
+  const scoreText = resultBox.querySelector(".score-text");
+  const comment = resultBox.querySelector(".comment");
+
+  button.addEventListener("click", () => {
+    const { score, unanswered } = calcScore();
+
+    if (unanswered > 0) {
+      scoreText.textContent = `未回答の質問が ${unanswered} 問あります。できるだけ全部回答してから診断してください。`;
+      comment.textContent = "";
+    } else {
+      scoreText.textContent = `あなたが「転職したほうがいい」確率は ${score}% です。`;
+      comment.textContent = buildComment(score);
+    }
+
+    resultBox.classList.remove("hidden");
+  });
+});

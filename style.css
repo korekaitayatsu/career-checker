@@ -143,3 +143,9 @@ body {
 .hidden {
   display: none;
 }
+
+/* –¢‰ñ“š‚Ìİ–â‚ğ–Ú—§‚½‚¹‚é */
+.question.unanswered-highlight {
+  background-color: #fff4e6;
+  border: 2px solid #ff8a65;
+}

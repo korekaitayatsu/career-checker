@@ -1,30 +1,65 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>転職したほうがいいか診断</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <title>転職したほうがいいか診断ツール</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-    <header>
-        <h1>転職したほうがいいか診断ツール</h1>
-        <p>以下の100問に、1〜5の5段階でお答えください。</p>
-    </header>
+  <header class="page-header">
+    <h1>転職したほうがいいか診断ツール</h1>
+    <p class="lead">
+      全部で最大100問。1〜5の5段階でお答えください。<br />
+      「1: まったく当てはまらない」〜「5: とても当てはまる」
+    </p>
+  </header>
 
-    <main id="question-container">
-        <!-- ここに script.js が質問を100問 自動生成して挿入します -->
-    </main>
-
-    <button id="calcButton" class="calc-button">診断する</button>
-
-    <section id="result" class="hidden">
-        <h2>診断結果</h2>
-        <p class="score-text"></p>
-        <p class="comment"></p>
+  <main>
+    <!-- 設問エリア -->
+    <section id="questions">
+      <h2>質問</h2>
+      <p class="note">
+        設問はランダムな順番で表示されます。<br />
+        途中でページを閉じても回答は自動保存され、次回開いたときに復元されます。
+      </p>
+      <div id="question-list"></div>
     </section>
 
-    <script src="script.js"></script>
+    <!-- 診断ボタン -->
+    <section id="action-area">
+      <button id="calcButton" class="primary-button">診断する</button>
+      <p id="save-info" class="save-info">※回答は自動保存されます</p>
+    </section>
+
+    <!-- 診断結果 -->
+    <section id="result" class="hidden result-section">
+      <h2>診断結果</h2>
+      <p class="score-text"></p>
+      <p class="stress-text"></p>
+      <p class="comment"></p>
+
+      <div class="reason-block">
+        <h3>転職を検討した方がよい要因</h3>
+        <ul id="reason-leave"></ul>
+      </div>
+
+      <div class="reason-block">
+        <h3>現職にとどまるメリット</h3>
+        <ul id="reason-stay"></ul>
+      </div>
+    </section>
+
+    <!-- 詳細ポップアップ -->
+    <div id="result-modal" class="modal hidden">
+      <div class="modal-content">
+        <button id="modal-close" class="modal-close">×</button>
+        <h2>診断結果の詳細</h2>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+    <div id="modal-backdrop" class="modal-backdrop hidden"></div>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>

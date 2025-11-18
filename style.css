@@ -1,202 +1,103 @@
-/* 全体レイアウト */
 body {
-  margin: 0;
-  font-family: "Meiryo", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  background: #3b4557;
-  color: #f8f8f8;
+    font-family: "Segoe UI", sans-serif;
+    background: #2f3a4a;
+    color: #fff;
+    margin: 0;
+    padding: 0;
 }
 
-.page-header {
-  padding: 24px 32px;
-  border-bottom: 2px solid #d4af37;
+header {
+    text-align: left;
+    padding: 40px;
+    background: #2f3a4a;
 }
 
-.page-header h1 {
-  margin: 0 0 8px;
-  font-size: 28px;
-}
-
-.lead {
-  margin: 0;
-  font-size: 14px;
-}
-
-main {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 20px 16px 60px;
-}
-
-/* 質問カード */
-#questions h2 {
-  margin-top: 0;
-}
-
-.note {
-  font-size: 13px;
-  color: #e0e0e0;
-  margin-bottom: 8px;
+h1 {
+    font-size: 40px;
+    color: #ffd86b;
+    font-weight: bold;
 }
 
 #question-list {
-  margin-top: 12px;
+    width: 90%;
+    margin: 20px auto;
+    padding-bottom: 40px;
 }
 
 .question {
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
-  padding: 14px 16px 10px;
-  margin-bottom: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+    background: #3c485a;
+    margin: 18px 0;
+    padding: 18px;
+    border-radius: 12px;
+    border-left: 5px solid #ffd86b;
 }
 
-.question-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
-}
-
-.question-number {
-  font-weight: bold;
-  color: #ffd666;
-}
-
-.question-category {
-  font-size: 11px;
-  color: #c0c8d8;
-}
-
-.question-text {
-  margin: 4px 0 8px;
-}
-
-/* ラジオボタン */
-.options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  font-size: 13px;
-}
-
-.options label {
-  cursor: pointer;
-}
-
-/* 診断ボタン */
-#action-area {
-  margin: 24px 0;
-  text-align: center;
-}
-
-.primary-button {
-  background: #ffb31a;
-  color: #222;
-  border-radius: 999px;
-  border: none;
-  padding: 14px 56px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
-}
-
-.primary-button:hover {
-  filter: brightness(1.05);
-}
-
-.save-info {
-  font-size: 12px;
-  margin-top: 6px;
-  color: #e0e0e0;
-}
-
-/* 診断結果 */
-.result-section {
-  margin-top: 24px;
-  padding: 18px 16px;
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.result-section h2 {
-  margin-top: 0;
-}
-
-.score-text,
-.stress-text,
-.comment {
-  margin-bottom: 8px;
-}
-
-.reason-block {
-  margin-top: 16px;
-}
-
-.reason-block h3 {
-  margin-bottom: 4px;
-}
-
-.reason-block ul {
-  margin: 0;
-  padding-left: 20px;
-  font-size: 14px;
-}
-
-/* 未回答ハイライト */
 .unanswered {
-  border-color: #ff6666 !important;
-  box-shadow: 0 0 0 2px rgba(255, 102, 102, 0.7);
+    background: #5a3c3c !important;
+    border-left: 5px solid #ff8b8b !important;
 }
 
-/* hidden 共通 */
+label {
+    display: block;
+    margin-top: 10px;
+}
+
+.main-button {
+    background: #ffd86b;
+    padding: 16px 28px;
+    border-radius: 10px;
+    color: #333;
+    font-size: 22px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+}
+
+.main-button:hover {
+    filter: brightness(1.1);
+}
+
+.center {
+    text-align: center;
+}
+
 .hidden {
-  display: none;
+    display: none;
 }
 
-/* モーダル */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 900;
+#result {
+    width: 90%;
+    margin: 40px auto;
+    padding: 30px;
+    background: #3c485a;
+    border-radius: 10px;
 }
 
-.modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 901;
+#comment {
+    margin-top: 18px;
+    line-height: 1.8em;
 }
 
-.modal-content {
-  width: min(760px, 90vw);
-  max-height: 80vh;
-  background: #2f3948;
-  border-radius: 16px;
-  padding: 20px 24px 24px;
-  overflow-y: auto;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
-  border: 1px solid #d4af37;
+/* ポップアップ */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 18px;
-  background: transparent;
-  border: none;
-  color: #ffffff;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-/* モーダル内テキスト */
-#modal-body p {
-  margin: 0 0 0.6em;
-  font-size: 14px;
+.popup-content {
+    background: #fff;
+    color: #000;
+    padding: 22px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
 }

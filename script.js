@@ -1,319 +1,153 @@
-// =============================
-// 設定
-// =============================
-const STORAGE_KEY = "careerCheckerAnswers_v1";
+// ==========================
+// 質問100問データ
+// ==========================
+const questionData = [
+    { category: "ストレス・健康", weight: 1.3, text: "仕事のことで考えを眠れないほど悩むことが増えている。" },
+    { category: "ストレス・健康", weight: 1.3, text: "最近3ヶ月で、仕事が原因と思われる強いストレスを感じることが多い。" },
+    { category: "人間関係・ハラスメント", weight: 1.3, text: "職場で相談できる相手がいない・孤立していると感じる。" },
+    { category: "人間関係・ハラスメント", weight: 1.3, text: "上司・同僚の言動で精神的につらい思いをすることがある。" },
+    { category: "職務・スキル・キャリア", weight: 1.0, text: "自分のスキルが正しく評価されていないと感じる。" },
+    { category: "職務・スキル・キャリア", weight: 1.0, text: "今後のキャリアがこの会社で描けるとは思えない。" },
+    { category: "労働条件・評価", weight: 1.1, text: "給与・待遇が市場価値に比べて低いと思う。" },
+    { category: "労働条件・評価", weight: 1.1, text: "適切な評価がされていないと感じる場面が多い。" },
+];
 
-// 質問番号 → カテゴリ
-function getCategoryByIndex(idx) {
-  idx = Number(idx);
-  if (idx >= 1 && idx <= 15) return "ストレス・健康";
-  if (idx >= 16 && idx <= 30) return "人間関係・ハラスメント";
-  if (idx >= 31 && idx <= 45) return "会社の将来性・コンプライアンス";
-  if (idx >= 46 && idx <= 65) return "成長・スキル・キャリア";
-  if (idx >= 66 && idx <= 85) return "興味・やりがい・愛着";
-  if (idx >= 86 && idx <= 100) return "報酬・条件・生活";
-  return "その他";
-}
+// ※本来100問分を入れる場所（いま8問だけサンプル）
+// がくさんが100問揃え次第ここに追加します。
 
-// 高ストレス時に出す強い警告メッセージ
-const STRESS_HIGH_MESSAGE =
-  "ストレスに関する設問の結果から、かなり高いストレス状態にある可能性があります。" +
-  "絶対に転職できない事情がない限りは、転職・部署異動・休職などを含めて環境を変える選択肢を早めに検討してください。" +
-  "心身の不調や適応障害・うつ病などのリスクもあり、危険な状態に陥っていてご自身でお気づきでいない可能性もあります。" +
-  "数年にわたり医療機関にかかっていない、または産業医との面談が済んでいない場合は、できるだけ早く関係部署や専門機関へ相談しましょう。" +
-  "会社に相談できない場合でも、ご家族やご友人など信頼できる方に必ず状況を共有してください。";
-
-// =============================
-// 回答の保存・復元
-// =============================
-function loadAnswersFromStorage() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const saved = JSON.parse(raw);
-
-    Object.entries(saved).forEach(([index, value]) => {
-      const input = document.querySelector(
-        `input[name="q${index}"][value="${value}"]`
-      );
-      if (input) {
-        input.checked = true;
-      }
-    });
-  } catch (e) {
-    console.error("loadAnswersFromStorage error", e);
-  }
-}
-
-function saveAnswersToStorage() {
-  const questions = document.querySelectorAll(".question");
-  const data = {};
-  questions.forEach((q) => {
-    const index = q.dataset.index;
-    const checked = q.querySelector(`input[name="q${index}"]:checked`);
-    if (checked) {
-      data[index] = checked.value;
+// ==========================
+// シャッフル関数
+// ==========================
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
-  });
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error("saveAnswersToStorage error", e);
-  }
+    return array;
 }
 
-// =============================
-// スコア計算
-// =============================
+// ==========================
+// 質問描画
+// ==========================
+function renderQuestions() {
+    const container = document.getElementById("question-container");
+    container.innerHTML = "";
+
+    const shuffled = shuffle([...questionData]);
+
+    shuffled.forEach((q, index) => {
+        const block = document.createElement("section");
+        block.className = "question";
+        block.dataset.index = index;
+        block.dataset.weight = q.weight;
+        block.dataset.category = q.category;
+
+        block.innerHTML = `
+            <p><strong>${index + 1}. ${q.text}</strong></p>
+            <label><input type="radio" name="q${index}" value="1"> 1: 当てはまらない</label>
+            <label><input type="radio" name="q${index}" value="2"> 2</label>
+            <label><input type="radio" name="q${index}" value="3"> 3</label>
+            <label><input type="radio" name="q${index}" value="4"> 4</label>
+            <label><input type="radio" name="q${index}" value="5"> 5: とても当てはまる</label>
+        `;
+        container.appendChild(block);
+    });
+}
+
+// ==========================
+// 診断ロジック
+// ==========================
+function checkAnswers() {
+    const blocks = document.querySelectorAll(".question");
+    const unanswered = [];
+
+    blocks.forEach(b => {
+        const index = b.dataset.index;
+        const checked = document.querySelector(`input[name="q${index}"]:checked`);
+        if (!checked) {
+            unanswered.push(index);
+            b.classList.add("unanswered-highlight");
+        } else {
+            b.classList.remove("unanswered-highlight");
+        }
+    });
+
+    return unanswered;
+}
+
 function calcScore() {
-  const questions = document.querySelectorAll(".question");
-  let totalWeighted = 0;
-  let totalWeight = 0;
-  let unanswered = 0;
-  const unansweredIndexes = [];
-
-  const categories = [
-    "ストレス・健康",
-    "人間関係・ハラスメント",
-    "会社の将来性・コンプライアンス",
-    "成長・スキル・キャリア",
-    "興味・やりがい・愛着",
-    "報酬・条件・生活",
-  ];
-
-  const categoryTotals = {};
-  const categoryWeights = {};
-  categories.forEach((c) => {
-    categoryTotals[c] = 0;
-    categoryWeights[c] = 0;
-  });
-
-  questions.forEach((q) => {
-    const weight = parseFloat(q.dataset.weight || "1");
-    const index = q.dataset.index;
-    const checked = q.querySelector(`input[name="q${index}"]:checked`);
-
-    // ハイライト解除
-    q.classList.remove("unanswered-highlight");
-
-    if (!checked) {
-      unanswered++;
-      unansweredIndexes.push(Number(index));
-      return;
+    const unanswered = checkAnswers();
+    if (unanswered.length > 0) {
+        alert(`未回答の設問があります。\n最初の未回答：${Number(unanswered[0]) + 1}問目へ移動します。`);
+        const first = unanswered[0];
+        const target = document.querySelector(`.question[data-index="${first}"]`);
+        target.scrollIntoView({ behavior: "smooth" });
+        return null;
     }
 
-    const value = parseInt(checked.value, 10); // 1〜5
-    // 1→0, 5→1 に正規化（高いほど「転職した方がいい」方向）
-    const normalized = (value - 1) / 4;
+    // スコア計算
+    let total = 0;
+    let stressScore = 0;
 
-    totalWeighted += normalized * weight;
-    totalWeight += weight;
+    document.querySelectorAll(".question").forEach(q => {
+        const index = q.dataset.index;
+        const val = Number(document.querySelector(`input[name="q${index}"]:checked`).value);
+        const weight = Number(q.dataset.weight);
+        const category = q.dataset.category;
 
-    const cat = getCategoryByIndex(index);
-    if (categoryTotals[cat] !== undefined) {
-      categoryTotals[cat] += normalized * weight;
-      categoryWeights[cat] += weight;
-    }
-  });
+        total += val * weight;
 
-  if (totalWeight === 0) {
-    return {
-      score: 0,
-      unanswered,
-      unansweredIndexes,
-      categoryScores: {},
-      stressScore: 0,
-    };
-  }
-
-  const ratio = totalWeighted / totalWeight; // 0〜1
-  const percent = Math.round(ratio * 100); // 0〜100%
-
-  const categoryScores = {};
-  categories.forEach((c) => {
-    if (categoryWeights[c] > 0) {
-      categoryScores[c] = Math.round(
-        (categoryTotals[c] / categoryWeights[c]) * 100
-      );
-    } else {
-      categoryScores[c] = null;
-    }
-  });
-
-  const stressScore = categoryScores["ストレス・健康"] || 0;
-
-  return {
-    score: percent,
-    unanswered,
-    unansweredIndexes,
-    categoryScores,
-    stressScore,
-  };
-}
-
-// =============================
-// コメント・ポップアップ文面
-// =============================
-function buildMainComment(percent, stressScore) {
-  let base;
-  if (percent >= 80) {
-    base =
-      "かなり高い確率で転職を検討してよい状態です。健康面・キャリア面のリスクも踏まえて、具体的な情報収集や相談を始めてください。";
-  } else if (percent >= 60) {
-    base =
-      "転職を前提に「選択肢を調べ始める」ゾーンです。現職で改善できるかと、外の選択肢の両方を比べてみましょう。";
-  } else if (percent >= 40) {
-    base =
-      "今すぐ辞めるほどではないものの、不満やモヤモヤが積み上がりつつある状態です。条件の棚卸しと、今後のキャリア設計を整理してみてください。";
-  } else if (percent >= 20) {
-    base =
-      "現時点では「今すぐ転職必須」というほどではなさそうです。ただし違和感が続く項目があれば、早めに上司・人事・第三者へ相談してみましょう。";
-  } else {
-    base =
-      "この診断だけでは「転職しない方がよい」とまでは言い切れませんが、大きな危険信号は読み取りにくい状態です。とはいえ、定期的に状況を見直していきましょう。";
-  }
-
-  // ストレス優先メッセージ（短い版）
-  let stressNote = "";
-  if (stressScore >= 80) {
-    stressNote =
-      "　なお、ストレスに関する設問の結果から高ストレス状態の可能性があります。健康面を最優先に、環境を変えることも含めて早めの対応をご検討ください。";
-  } else if (stressScore >= 70) {
-    stressNote = "　ストレスも危険水域に近い水準です。無理を重ねすぎないよう注意してください。";
-  }
-
-  return base + stressNote;
-}
-
-function buildPopupMessage(percent, categoryScores, stressScore) {
-  const lines = [];
-
-  lines.push(
-    `【総合診断】\nあなたが「転職を検討した方がよい」確率は ${percent}% です。`
-  );
-
-  // 総合コメント
-  lines.push("");
-  lines.push("■全体コメント");
-  lines.push(buildMainComment(percent, stressScore));
-
-  // ストレス強警告（80%以上）
-  if (stressScore >= 80) {
-    lines.push("");
-    lines.push("■ストレスに関する重要な注意");
-    lines.push(STRESS_HIGH_MESSAGE);
-  }
-
-  // カテゴリ別の傾向
-  const reasonsLeave = [];
-  const reasonsStay = [];
-
-  Object.entries(categoryScores).forEach(([cat, score]) => {
-    if (score == null) return;
-    if (score >= 60) {
-      reasonsLeave.push(`${cat}（スコア ${score}%）`);
-    } else if (score <= 40) {
-      reasonsStay.push(`${cat}（スコア ${score}%）`);
-    }
-  });
-
-  if (reasonsLeave.length > 0) {
-    lines.push("");
-    lines.push("■転職を検討した方がよい主な要因");
-    reasonsLeave.forEach((t) => lines.push("・" + t));
-  }
-
-  if (reasonsStay.length > 0) {
-    lines.push("");
-    lines.push("■今の会社にとどまる判断材料になりそうな点");
-    reasonsStay.forEach((t) => lines.push("・" + t));
-  }
-
-  lines.push("");
-  lines.push(
-    "※この診断はあくまで自己チェック用の簡易ツールです。健康状態や人生の重要な決断については、医療機関・公的相談窓口・信頼できる第三者などと必ず相談しながら判断してください。"
-  );
-
-  return lines.join("\n");
-}
-
-// =============================
-// 未回答ハイライト & スクロール
-// =============================
-function highlightUnanswered(unansweredIndexes) {
-  if (!unansweredIndexes || unansweredIndexes.length === 0) return;
-
-  unansweredIndexes.forEach((idx) => {
-    const q = document.querySelector(`.question[data-index="${idx}"]`);
-    if (q) {
-      q.classList.add("unanswered-highlight");
-    }
-  });
-
-  const firstIdx = unansweredIndexes[0];
-  const firstQ = document.querySelector(`.question[data-index="${firstIdx}"]`);
-  if (firstQ) {
-    firstQ.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-}
-
-// =============================
-// 初期化
-// =============================
-document.addEventListener("DOMContentLoaded", () => {
-  // 回答の復元
-  loadAnswersFromStorage();
-
-  // ラジオボタン変更時に自動保存 & ハイライト解除
-  const radios = document.querySelectorAll('input[type="radio"][name^="q"]');
-  radios.forEach((r) => {
-    r.addEventListener("change", () => {
-      const name = r.name; // "q12" など
-      const index = name.replace("q", "");
-      const q = document.querySelector(`.question[data-index="${index}"]`);
-      if (q) q.classList.remove("unanswered-highlight");
-      saveAnswersToStorage();
+        if (category === "ストレス・健康") stressScore += val * weight;
     });
-  });
 
-  // ページ離脱時のメッセージ（対応ブラウザでは表示）
-  window.addEventListener("beforeunload", (e) => {
-    // 何かしら回答がある場合だけ
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      e.preventDefault();
-      e.returnValue = "回答は一時保存いたします。";
-    }
-  });
+    return { total, stressScore };
+}
 
-  // 診断ボタン
-  const button = document.getElementById("calcButton");
-  const resultBox = document.getElementById("result");
-  const scoreText = resultBox.querySelector(".score-text");
-  const comment = resultBox.querySelector(".comment");
+// ==========================
+// 診断メッセージ
+// ==========================
+function buildMessage(total, stressScore) {
+    let msg = "";
 
-  button.addEventListener("click", () => {
-    const { score, unanswered, unansweredIndexes, categoryScores, stressScore } =
-      calcScore();
-
-    if (unanswered > 0) {
-      // 未回答あり
-      const listText = unansweredIndexes.join(", ");
-      scoreText.textContent = `未回答の質問があります（質問番号：${listText}）。できるだけすべて回答してから診断してください。`;
-      comment.textContent = "";
-
-      highlightUnanswered(unansweredIndexes);
-      resultBox.classList.remove("hidden");
-      return;
+    if (total >= 80) {
+        msg += "【結論】あなたは転職を強く検討すべき状況です。\n\n";
+    } else if (total >= 60) {
+        msg += "【結論】転職を検討した方がよい状況です。\n\n";
+    } else {
+        msg += "【結論】現時点では無理に転職する必要はありません。\n\n";
     }
 
-    // 通常の結果表示
-    scoreText.textContent = `あなたが「転職したほうがいい」確率は ${score}% です。`;
-    comment.textContent = buildMainComment(score, stressScore);
-    resultBox.classList.remove("hidden");
+    if (stressScore >= 70) {
+        msg += "⚠️【ストレス警告】ストレス値が非常に高く、危険水域に近い状態です。\n"
+             + "心身の不調や適応障害・うつ病などのリスクがあり、重大な危険に陥る可能性があります。\n"
+             + "会社に相談できない場合、ご家族ご友人に必ず相談し、早急に環境を変える選択肢を検討してください。\n\n";
+    }
 
-    // ポップアップ（長文まとめ）
-    const popupMessage = buildPopupMessage(score, categoryScores, stressScore);
-    alert(popupMessage);
-  });
+    msg += "以下はあなたの状況の詳細です：\n";
+    msg += "・ストレス要因、職場環境、評価の不公平感、キャリア不一致などが影響しています。\n";
+    msg += "・改善する余地がない場合は、転職活動または休職も検討してください。\n";
+
+    return msg;
+}
+
+// ==========================
+// 診断ボタンクリック
+// ==========================
+document.getElementById("calcButton").addEventListener("click", () => {
+    const result = calcScore();
+    if (!result) return;
+
+    const msg = buildMessage(result.total, result.stressScore);
+
+    document.querySelector(".score-text").textContent =
+        `総合スコア：${result.total.toFixed(1)}（ストレススコア：${result.stressScore.toFixed(1)}）`;
+
+    document.querySelector(".comment").textContent = msg;
+
+    document.getElementById("result").classList.remove("hidden");
 });
+
+// ==========================
+// 初期化
+// ==========================
+renderQuestions();
